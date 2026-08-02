@@ -45,7 +45,6 @@ const navItems = [
     {
         group: 'SETTINGS', items: [
             { href: '/dashboard/profile', icon: '🏢', label: 'Coaching Profile' },
-            { href: '/dashboard/subscription', icon: '⭐', label: 'Subscription' },
         ]
     },
 ]
@@ -100,23 +99,17 @@ function DashboardSidebar({ open, onClose }: { open: boolean; onClose: () => voi
                         <div key={group.group}>
                             <div className="sidebar-section-title">{group.group}</div>
                             {group.items.map(item => {
-                                const requiredFeature = NAV_FEATURE_MAP[item.href]
-                                const isLocked = requiredFeature && !hasFeature(currentPlan, requiredFeature)
-
                                 return (
                                     <Link
                                         key={item.href}
-                                        href={isLocked ? '/dashboard/subscription' : item.href}
-                                        className={`nav-item ${pathname === item.href ? 'active' : ''} ${isLocked ? 'locked' : ''}`}
+                                        href={item.href}
+                                        className={`nav-item ${pathname === item.href ? 'active' : ''}`}
                                         onClick={onClose}
-                                        style={isLocked ? { opacity: 0.6 } : {}}
-                                        title={isLocked ? 'Upgrade to unlock this feature' : ''}
                                     >
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
                                             <span style={{ fontSize: '16px' }}>{item.icon}</span>
                                             <span>{item.label}</span>
                                         </div>
-                                        {isLocked && <span style={{ fontSize: '12px' }}>🔒</span>}
                                     </Link>
                                 )
                             })}
@@ -145,20 +138,7 @@ function DashboardSidebar({ open, onClose }: { open: boolean; onClose: () => voi
                         </div>
                     </a>
 
-                    {/* Subscription badge - hide for super admin and affiliates */}
-                    {!isSuperAdmin && !isAffiliate && (
-                        <Link href="/dashboard/subscription" style={{ textDecoration: 'none' }}>
-                            <div style={{ margin: '12px 8px', padding: '12px', background: 'rgba(99,102,241,0.1)', borderRadius: '10px', border: '1px solid rgba(99,102,241,0.2)', cursor: 'pointer', transition: 'background 0.2s' }}
-                                onMouseEnter={e => e.currentTarget.style.background = 'rgba(99,102,241,0.15)'}
-                                onMouseLeave={e => e.currentTarget.style.background = 'rgba(99,102,241,0.1)'}
-                            >
-                                <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '700', textTransform: 'uppercase', marginBottom: '4px' }}>Plan</div>
-                                <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--primary-light)' }}>
-                                    {currentPlan} {subscription?.status === 'ACTIVE' ? 'Active ✓' : 'Trial ⏳'}
-                                </div>
-                            </div>
-                        </Link>
-                    )}
+                    {/* Subscription badge removed as requested */}
 
                     {/* User */}
                     <div style={{ padding: '12px 8px', borderTop: '1px solid var(--border)', marginTop: '8px' }}>
@@ -293,12 +273,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
         if (!isLoading && !user) {
             router.push('/login')
         } else if (!isLoading && user && user.role !== 'SUPER_ADMIN' && user.role !== 'AFFILIATE') {
-            if (subscription?.status === 'TRIAL' && subscription.trialEndsAt) {
-                const trialEnd = new Date(subscription.trialEndsAt)
-                if (new Date() > trialEnd && pathname !== '/dashboard/subscription') {
-                    router.push('/dashboard/subscription?autoCheckout=true')
-                }
-            }
+            // Plan and trial restrictions have been removed
         }
     }, [user, isLoading, router, subscription, pathname])
 
@@ -329,24 +304,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
 }
 
 export function FeatureGate({ feature, children }: { feature: keyof PlanFeatures, children: React.ReactNode }) {
-    const { subscription } = useAuth()
-    const currentPlan = subscription?.plan || 'BASIC'
-
-    if (!hasFeature(currentPlan, feature)) {
-        return (
-            <div className="card" style={{ textAlign: 'center', padding: '40px 20px' }}>
-                <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔒</div>
-                <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '8px' }}>Feature Locked</h3>
-                <p style={{ color: 'var(--text-secondary)', marginBottom: '24px', maxWidth: '400px', margin: '0 auto 24px' }}>
-                    This feature is not available on your current {currentPlan} plan. Upgrade your subscription to unlock this powerful capability for your coaching center.
-                </p>
-                <Link href="/dashboard/subscription" className="btn btn-primary">
-                    View Upgrade Options
-                </Link>
-            </div>
-        )
-    }
-
+    // Feature gating is disabled, always render children
     return <>{children}</>
 }
 
