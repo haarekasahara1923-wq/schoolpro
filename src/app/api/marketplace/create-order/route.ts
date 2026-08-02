@@ -2,13 +2,17 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import Razorpay from 'razorpay'
 
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID || '',
-    key_secret: process.env.RAZORPAY_KEY_SECRET || '',
-})
-
 export async function POST(req: Request) {
     try {
+        const key_id = process.env.RAZORPAY_KEY_ID || ''
+        const key_secret = process.env.RAZORPAY_KEY_SECRET || ''
+        
+        if (!key_id || !key_secret) {
+            return NextResponse.json({ error: 'Razorpay keys not configured' }, { status: 500 })
+        }
+
+        const razorpay = new Razorpay({ key_id, key_secret })
+
         const { items, studentName, email, phone, affiliateTenantId } = await req.json()
 
         if (!items || !Array.isArray(items) || items.length === 0) {
