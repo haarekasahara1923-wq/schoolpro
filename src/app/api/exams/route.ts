@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
                 maxMarks: parseFloat(maxMarks),
                 courseId,
                 batchId,
-                teacherId: user!.id,
+                teacherId: user!.userId,
                 results: {
                     create: results.map((r: any) => ({
                         tenantId: user!.tenantId,
