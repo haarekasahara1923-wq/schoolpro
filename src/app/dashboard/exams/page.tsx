@@ -30,7 +30,7 @@ export default function ExamsPage() {
 
     useEffect(() => {
         if (!form.courseId || !form.batchId || !token) return
-        fetch(/api/students?course=&batch=, { headers: { Authorization: 'Bearer ' + token } })
+        fetch(`/api/students?course=${form.courseId}&batch=${form.batchId}`, { headers: { Authorization: 'Bearer ' + token } })
             .then(r => r.json())
             .then(d => { if (d.success) setStudents(d.data) })
     }, [form.courseId, form.batchId, token])
@@ -61,7 +61,7 @@ export default function ExamsPage() {
 
     return (
         <div>
-            <h1 className="page-title">?? Monthly Tests & Marks</h1>
+            <h1 className="page-title">📑 Monthly Tests & Marks</h1>
             <p className="page-subtitle">Upload marks for students. Parents will see this on their portal.</p>
             
             {toast && <div className="toast toast-success" style={{margin: '10px 0'}}>{toast}</div>}
@@ -123,7 +123,7 @@ export default function ExamsPage() {
                         </table>
                         <div style={{ marginTop: '20px' }}>
                             <button type="submit" className="btn btn-primary" disabled={loading}>
-                                {loading ? 'Saving...' : '?? Publish Marks'}
+                                {loading ? 'Saving...' : '💾 Publish Marks'}
                             </button>
                         </div>
                     </div>
