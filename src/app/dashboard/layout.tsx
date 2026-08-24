@@ -24,6 +24,7 @@ const navItems = [
         group: 'ACADEMICS', items: [
             { href: '/dashboard/courses', icon: '🏫', label: 'Classes & Batches' },
             { href: '/dashboard/mock-tests', icon: '📝', label: 'Mock Tests' },
+            { href: '/dashboard/exams', icon: '📑', label: 'Exams & Marks' },
             { href: '/dashboard/ai-tools', icon: '🤖', label: 'AI Tools' },
         ]
     },

@@ -25,6 +25,7 @@ export default function AddStudentPage() {
         email: '', address: '', gender: 'MALE', dob: '', courseId: '', batchId: '',
         admissionDate: new Date().toISOString().split('T')[0],
         feePlan: 'Annual', totalFee: '', notes: '',
+        aadhaarNo: '', penId: '', aparId: '', samagraId: ''
     })
 
     useEffect(() => {
@@ -117,6 +118,25 @@ export default function AddStudentPage() {
                     <div style={{ marginTop: '16px' }}>
                         <Field label="Address">
                             <textarea className="input" placeholder="Full address with city and pin code" value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} rows={2} style={{ resize: 'none' }} />
+                        </Field>
+                    </div>
+                </div>
+
+                {/* Government IDs */}
+                <div className="card" style={{ marginBottom: '20px' }}>
+                    <h3 style={{ fontWeight: '700', marginBottom: '20px', fontSize: '16px', color: 'var(--primary-light)' }}>🪪 Government IDs</h3>
+                    <div className="grid-cols-2">
+                        <Field label="Aadhaar Number">
+                            <input className="input" placeholder="1234 5678 9012" value={form.aadhaarNo} onChange={e => setForm({ ...form, aadhaarNo: e.target.value })} />
+                        </Field>
+                        <Field label="PEN ID No.">
+                            <input className="input" placeholder="PEN ID" value={form.penId} onChange={e => setForm({ ...form, penId: e.target.value })} />
+                        </Field>
+                        <Field label="APAR ID No.">
+                            <input className="input" placeholder="APAR ID" value={form.aparId} onChange={e => setForm({ ...form, aparId: e.target.value })} />
+                        </Field>
+                        <Field label="Samagra ID No.">
+                            <input className="input" placeholder="Samagra ID" value={form.samagraId} onChange={e => setForm({ ...form, samagraId: e.target.value })} />
                         </Field>
                     </div>
                 </div>

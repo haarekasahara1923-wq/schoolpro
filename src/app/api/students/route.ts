@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
         }
 
         const body = await req.json()
-        const { fullName, phone, courseId, batchId, fatherName, motherName, parentPhone, email, address, gender, dob, admissionDate, feePlan, totalFee, notes } = body
+        const { fullName, phone, courseId, batchId, fatherName, motherName, parentPhone, email, address, gender, dob, admissionDate, feePlan, totalFee, notes, aadhaarNo, penId, aparId, samagraId } = body
 
         if (!fullName || !phone || !courseId || !batchId) {
             return NextResponse.json({ error: 'Required fields missing' }, { status: 400 })
@@ -114,6 +114,10 @@ export async function POST(req: NextRequest) {
                 paidFee: 0,
                 status: 'ACTIVE',
                 notes: notes || '',
+                aadhaarNo: aadhaarNo || '',
+                penId: penId || '',
+                aparId: aparId || '',
+                samagraId: samagraId || '',
             }
         })
 

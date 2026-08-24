@@ -278,6 +278,10 @@ model Student {
   gender          Gender    @default(MALE)
   photo           String?
   idProof         String?
+  aadhaarNo       String?
+  penId           String?
+  aparId          String?
+  samagraId       String?
   admissionDate   DateTime  @default(now())
   feePlan         String?
   totalFee        Float     @default(0)
@@ -828,4 +832,49 @@ model ParentProfile {
   children  Student[] @relation("ParentChildren")
 
   @@index([tenantId])
+}
+
+// =============================================
+// NEW MODELS: Exams & Results (Monthly Tests)
+// =============================================
+
+model Exam {
+  id          String   @id @default(cuid())
+  tenantId    String
+  title       String   // e.g., "August Monthly Test"
+  date        DateTime @default(now())
+  subject     String
+  maxMarks    Float
+  courseId    String
+  batchId     String
+  teacherId   String?  // Reference to User ID of the teacher
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  course      Course   @relation(fields: [courseId], references: [id])
+  batch       Batch    @relation(fields: [batchId], references: [id])
+  results     ExamResult[]
+
+  @@index([tenantId])
+  @@index([courseId, batchId])
+}
+
+model ExamResult {
+  id          String   @id @default(cuid())
+  tenantId    String
+  examId      String
+  studentId   String
+  marksObtained Float
+  remarks     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  exam        Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([examId, studentId]) // One result per student per exam
+  @@index([tenantId])
+  @@index([studentId])
 }

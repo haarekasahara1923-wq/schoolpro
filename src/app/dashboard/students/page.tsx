@@ -19,6 +19,10 @@ interface Student {
     admissionDate: string
     fatherName: string
     parentPhone: string
+    aadhaarNo?: string
+    penId?: string
+    aparId?: string
+    samagraId?: string
 }
 
 const statusColors: Record<string, string> = {
@@ -326,6 +330,10 @@ export default function StudentsPage() {
                                         ['⚠️ Pending', formatCurrency(selectedStudent.totalFee - selectedStudent.paidFee)],
                                         ['📅 Admission', selectedStudent.admissionDate ? formatDate(selectedStudent.admissionDate) : 'N/A'],
                                         ['🚩 Status', selectedStudent.status],
+                                        ['🪪 Aadhaar No.', selectedStudent.aadhaarNo || 'N/A'],
+                                        ['🆔 PEN ID', selectedStudent.penId || 'N/A'],
+                                        ['🆔 APAR ID', selectedStudent.aparId || 'N/A'],
+                                        ['🆔 Samagra ID', selectedStudent.samagraId || 'N/A'],
                                     ].map(([label, value]) => (
                                         <div key={label} style={{ padding: '10px', background: 'var(--surface-2)', borderRadius: '8px' }}>
                                             <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '4px' }}>{label}</div>
