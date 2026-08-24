@@ -22,6 +22,23 @@ export default function RegisterPage() {
     const [refCode, setRefCode] = useState('')
 
     useEffect(() => {
+        const storedUser = localStorage.getItem('cp_user')
+        if (storedUser) {
+            const user = JSON.parse(storedUser)
+            if (user.role === 'STUDENT') {
+                router.push('/portal/student')
+            } else if (user.role === 'PARENT') {
+                router.push('/portal/parent')
+            } else if (user.role === 'TEACHER' || user.role === 'STAFF') {
+                router.push('/portal/staff')
+            } else if (user.role === 'SUPER_ADMIN') {
+                router.push('/dashboard/super-admin/tenants')
+            } else {
+                router.push('/dashboard')
+            }
+            return
+        }
+
         if (typeof window !== 'undefined') {
             const params = new URLSearchParams(window.location.search)
             const ref = params.get('ref')

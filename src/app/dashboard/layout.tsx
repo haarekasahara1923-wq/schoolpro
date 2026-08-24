@@ -290,15 +290,68 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
 
     if (!user) return null
 
+    const bottomNavItems = [
+        { href: '/dashboard', label: 'Home', icon: '🏠' },
+        { href: '/dashboard/students', label: 'Students', icon: '👨‍🎓' },
+        { href: '/dashboard/fees', label: 'Fees', icon: '💰' },
+        { href: '/dashboard/notices', label: 'Notices', icon: '📢' },
+        { href: '/dashboard/reports', label: 'Reports', icon: '📊' },
+    ]
+
     return (
         <div>
             <DashboardSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
             <DashboardHeader onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
-            <main className="main-content">
-                <div className="page-content fade-in">
+            <main className="main-content" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+                <div className="page-content fade-in" style={{ paddingBottom: '80px' }}>
                     {children}
                 </div>
             </main>
+
+            {/* Mobile Bottom Navigation Bar */}
+            <nav style={{
+                display: 'none',
+                position: 'fixed',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                zIndex: 1000,
+                background: 'var(--surface)',
+                borderTop: '1px solid var(--border)',
+                paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+                boxShadow: '0 -4px 20px rgba(0,0,0,0.08)',
+            }} className="dashboard-bottom-nav">
+                {bottomNavItems.map(item => {
+                    const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))
+                    return (
+                        <Link key={item.href} href={item.href} style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flex: 1,
+                            padding: '8px 4px',
+                            textDecoration: 'none',
+                            color: isActive ? 'var(--primary)' : 'var(--text-muted)',
+                            gap: '3px',
+                            transition: 'color 0.2s',
+                        }}>
+                            <span style={{ fontSize: '20px', lineHeight: 1 }}>{item.icon}</span>
+                            <span style={{ fontSize: '10px', fontWeight: isActive ? 600 : 400, letterSpacing: '0.3px' }}>{item.label}</span>
+                            {isActive && (
+                                <span style={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    width: '24px',
+                                    height: '2px',
+                                    background: 'var(--primary)',
+                                    borderRadius: '0 0 2px 2px',
+                                }} />
+                            )}
+                        </Link>
+                    )
+                })}
+            </nav>
         </div>
     )
 }

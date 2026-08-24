@@ -851,3 +851,14 @@ tr:hover td {
     max-width: 120px;
   }
 }
+
+/* ── Dashboard Admin Bottom Nav (mobile only) ── */
+@media (max-width: 768px) {
+  .dashboard-bottom-nav {
+    display: flex !important;
+  }
+
+  .dashboard-bottom-nav a {
+    position: relative;
+  }
+}
