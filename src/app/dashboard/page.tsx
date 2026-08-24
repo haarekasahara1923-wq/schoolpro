@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
 
 export default function AdminDashboard() {
-  const { token } = useAuth()
+  const { token, tenant } = useAuth()
   const [stats, setStats] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
@@ -46,7 +46,7 @@ export default function AdminDashboard() {
       {/* Welcome Banner */}
       <div style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)', borderRadius: '16px', padding: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <div style={{ fontSize: '22px', fontWeight: '800', color: 'white' }}>School Dashboard 🏫</div>
+          <div style={{ fontSize: '22px', fontWeight: '800', color: 'white' }}>{tenant?.name || 'School'} Dashboard 🏫</div>
           <div style={{ fontSize: '14px', color: 'rgba(255,255,255,0.8)', marginTop: '4px' }}>{new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
         </div>
         <div style={{ fontSize: '48px' }}>🎓</div>
