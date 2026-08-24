@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 const features = [
   { icon: '👨‍🎓', title: 'Student Management', desc: 'Admissions, profiles, class & section management with parent portals', color: '#6366f1' },
@@ -32,6 +33,18 @@ const testimonials = [
 
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const router = useRouter()
+
+  useEffect(() => {
+    const checkMobile = () => {
+      if (window.innerWidth <= 768) {
+        router.replace('/login')
+      }
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [router])
 
   return (
     <div style={{ minHeight: '100vh', background: '#0a0a14', color: 'white', fontFamily: 'inherit' }}>
