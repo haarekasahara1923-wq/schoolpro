@@ -5,10 +5,11 @@ import { slugify } from '@/lib/utils'
 
 export async function POST(req: NextRequest) {
     try {
-        const { name, email, password, phone, coachingName, plan, ref } = await req.json()
+        const body = await req.json()
+        const { name, email, password, phone, coachingName, plan, ref, role, tenantId } = body
 
-        if (!name || !email || !password || !coachingName) {
-            return NextResponse.json({ error: 'All fields are required' }, { status: 400 })
+        if (!name || !email || !password) {
+            return NextResponse.json({ error: 'Name, email, and password are required' }, { status: 400 })
         }
 
         // Check if email already exists
@@ -17,86 +18,180 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Email already registered' }, { status: 409 })
         }
 
-        let tenantSlug = slugify(coachingName)
-        let slugExists = await prisma.tenant.findUnique({ where: { slug: tenantSlug } })
-        let count = 1
-        while (slugExists) {
-            tenantSlug = `${slugify(coachingName)}-${count}`
-            slugExists = await prisma.tenant.findUnique({ where: { slug: tenantSlug } })
-            count++
-        }
-
         const hashedPassword = await hashPassword(password)
-        const trialEndsAt = new Date()
-        trialEndsAt.setDate(trialEndsAt.getDate() + 7)
+        const userRole = role || 'COACHING_ADMIN'
 
-        const result = await prisma.$transaction(async (tx) => {
-            const tenant = await tx.tenant.create({
-                data: {
-                    name: coachingName,
-                    slug: tenantSlug,
-                    themeColor: '#6366f1',
-                    phone: phone || '',
-                    email: email,
-                    isActive: true,
-                }
-            })
+        let result;
 
-            let affiliateObj = null;
-            if (ref) {
-                affiliateObj = await tx.affiliate.findUnique({ where: { affiliateCode: ref } });
-                if (affiliateObj) {
-                    await tx.tenant.update({
-                        where: { id: tenant.id },
-                        data: { affiliateId: affiliateObj.id }
-                    });
-                    await tx.affiliateReferral.create({
-                        data: {
-                            affiliateId: affiliateObj.id,
-                            tenantId: tenant.id,
-                            status: 'PENDING',
-                        }
-                    });
-                }
+        if (userRole === 'COACHING_ADMIN') {
+            // Register a new school (Tenant)
+            if (!coachingName) {
+                return NextResponse.json({ error: 'School name is required' }, { status: 400 })
             }
 
-            const user = await tx.user.create({
-                data: {
-                    tenantId: tenant.id,
-                    email: email.toLowerCase(),
-                    phone: phone || '',
-                    password: hashedPassword,
-                    plainPassword: password, // Store plain password for super admin as requested
-                    name,
-                    role: 'COACHING_ADMIN',
-                    isActive: true,
+            let tenantSlug = slugify(coachingName)
+            let slugExists = await prisma.tenant.findUnique({ where: { slug: tenantSlug } })
+            let count = 1
+            while (slugExists) {
+                tenantSlug = `${slugify(coachingName)}-${count}`
+                slugExists = await prisma.tenant.findUnique({ where: { slug: tenantSlug } })
+                count++
+            }
+
+            const trialEndsAt = new Date()
+            trialEndsAt.setDate(trialEndsAt.getDate() + 7)
+
+            result = await prisma.$transaction(async (tx) => {
+                const tenant = await tx.tenant.create({
+                    data: {
+                        name: coachingName,
+                        slug: tenantSlug,
+                        themeColor: '#6366f1',
+                        phone: phone || '',
+                        email: email,
+                        isActive: true,
+                    }
+                })
+
+                let affiliateObj = null;
+                if (ref) {
+                    affiliateObj = await tx.affiliate.findUnique({ where: { affiliateCode: ref } });
+                    if (affiliateObj) {
+                        await tx.tenant.update({
+                            where: { id: tenant.id },
+                            data: { affiliateId: affiliateObj.id }
+                        });
+                        await tx.affiliateReferral.create({
+                            data: {
+                                affiliateId: affiliateObj.id,
+                                tenantId: tenant.id,
+                                status: 'PENDING',
+                            }
+                        });
+                    }
                 }
-            })
 
-            const subscription = await tx.subscription.create({
-                data: {
-                    tenantId: tenant.id,
-                    plan: plan || 'BASIC',
-                    status: 'TRIAL',
-                    trialEndsAt,
-                    amount: 0,
+                const user = await tx.user.create({
+                    data: {
+                        tenantId: tenant.id,
+                        email: email.toLowerCase(),
+                        phone: phone || '',
+                        password: hashedPassword,
+                        plainPassword: password,
+                        name,
+                        role: 'COACHING_ADMIN',
+                        isActive: true,
+                    }
+                })
+
+                const subscription = await tx.subscription.create({
+                    data: {
+                        tenantId: tenant.id,
+                        plan: plan || 'PRO',
+                        status: 'TRIAL',
+                        trialEndsAt,
+                        amount: 0,
+                    }
+                })
+
+                return { tenant, user, subscription }
+            })
+        } else {
+            // Register under an existing school
+            if (!tenantId) {
+                return NextResponse.json({ error: 'Please select a school to register under' }, { status: 400 })
+            }
+
+            const school = await prisma.tenant.findUnique({ where: { id: tenantId } })
+            if (!school) {
+                return NextResponse.json({ error: 'Selected school does not exist' }, { status: 404 })
+            }
+
+            result = await prisma.$transaction(async (tx) => {
+                const user = await tx.user.create({
+                    data: {
+                        tenantId,
+                        email: email.toLowerCase(),
+                        phone: phone || '',
+                        password: hashedPassword,
+                        plainPassword: password,
+                        name,
+                        role: userRole as any,
+                        isActive: true,
+                    }
+                })
+
+                // Create profile details based on role
+                if (userRole === 'STUDENT') {
+                    // Try to link to an existing student profile in the same school by email or phone
+                    const existingStudent = await tx.student.findFirst({
+                        where: {
+                            tenantId,
+                            OR: [
+                                { email: email.toLowerCase() },
+                                { phone: phone || 'undefined_placeholder_to_prevent_match' }
+                            ]
+                        }
+                    })
+
+                    if (existingStudent) {
+                        await tx.student.update({
+                            where: { id: existingStudent.id },
+                            data: { userId: user.id }
+                        })
+                    } else {
+                        // Create a dummy/initial Student profile to link
+                        // They'll need to select/assign to Course/Batch later by staff
+                        const dummyCourse = await tx.course.findFirst({ where: { tenantId } })
+                        const dummyBatch = await tx.batch.findFirst({ where: { tenantId } })
+                        
+                        await tx.student.create({
+                            data: {
+                                tenantId,
+                                userId: user.id,
+                                fullName: name,
+                                phone: phone || '',
+                                courseId: dummyCourse?.id || 'default_course',
+                                batchId: dummyBatch?.id || 'default_batch',
+                                status: 'ACTIVE',
+                            }
+                        })
+                    }
+                } else if (userRole === 'PARENT') {
+                    await tx.parentProfile.create({
+                        data: {
+                            tenantId,
+                            userId: user.id,
+                            name,
+                            phone: phone || '',
+                        }
+                    })
+                } else if (userRole === 'TEACHER') {
+                    await tx.teacher.create({
+                        data: {
+                            tenantId,
+                            name,
+                            email: email.toLowerCase(),
+                            phone: phone || '',
+                        }
+                    })
                 }
+
+                return { tenant: school, user, subscription: null }
             })
+        }
 
-            return { tenant, user, subscription }
-        })
-
-        const payload = { userId: result.user.id, tenantId: result.tenant.id, role: 'COACHING_ADMIN', email: email.toLowerCase() }
+        const payload = { userId: result.user.id, tenantId: result.tenant.id, role: userRole, email: email.toLowerCase() }
         const accessToken = signAccessToken(payload)
         const refreshToken = signRefreshToken(payload)
 
         return NextResponse.json({
             success: true,
-            message: 'Registration successful. 7-day free trial activated!',
+            message: 'Registration successful',
             accessToken,
             refreshToken,
-            user: { id: result.user.id, name, email, role: 'COACHING_ADMIN', tenantId: result.tenant.id },
-            tenant: { id: result.tenant.id, name: coachingName, themeColor: '#6366f1' },
+            user: { id: result.user.id, name, email, role: userRole, tenantId: result.tenant.id },
+            tenant: { id: result.tenant.id, name: result.tenant.name, themeColor: result.tenant.themeColor },
         }, { status: 201 })
     } catch (error) {
         console.error('Register error:', error)

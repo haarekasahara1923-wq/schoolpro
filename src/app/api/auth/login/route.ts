@@ -4,14 +4,19 @@ import { signAccessToken, signRefreshToken, comparePassword } from '@/lib/auth'
 
 export async function POST(req: NextRequest) {
     try {
-        const { email, password } = await req.json()
+        const { email, password, role } = await req.json()
 
         if (!email || !password) {
             return NextResponse.json({ error: 'Email and password are required' }, { status: 400 })
         }
 
+        const whereClause: any = { email: email.toLowerCase(), isActive: true }
+        if (role) {
+            whereClause.role = role
+        }
+
         const user = await prisma.user.findFirst({
-            where: { email: email.toLowerCase(), isActive: true }
+            where: whereClause
         })
         if (!user) {
             return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })

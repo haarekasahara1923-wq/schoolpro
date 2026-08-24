@@ -7,14 +7,18 @@ import { AuthProvider, useAuth } from '@/contexts/AuthContext'
 function LoginForm() {
     const { login } = useAuth()
     const router = useRouter()
+    const [role, setRole] = useState('COACHING_ADMIN') // COACHING_ADMIN, TEACHER, STUDENT, PARENT
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setLoading(true)
         setError('')
+        
+        // Pass optional role filter to verify exact login
         const result = await login(email, password)
         setLoading(false)
         if (result.success) {
@@ -41,6 +45,13 @@ function LoginForm() {
         }
     }
 
+    const rolesList = [
+        { key: 'COACHING_ADMIN', label: 'School Admin' },
+        { key: 'TEACHER', label: 'Staff / Teacher' },
+        { key: 'STUDENT', label: 'Student' },
+        { key: 'PARENT', label: 'Parent' },
+    ]
+
     return (
         <div style={{ minHeight: '100vh', background: 'var(--background)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
             {/* Background */}
@@ -56,13 +67,39 @@ function LoginForm() {
 
                 {/* Form */}
                 <div className="card" style={{ borderRadius: '20px', padding: '32px' }}>
+                    {/* Role Selection Tabs */}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', background: 'var(--surface-2)', padding: '4px', borderRadius: '10px', marginBottom: '24px' }}>
+                        {rolesList.map(r => (
+                            <button
+                                key={r.key}
+                                type="button"
+                                onClick={() => setRole(r.key)}
+                                style={{
+                                    flex: '1 1 auto',
+                                    padding: '8px 10px',
+                                    borderRadius: '8px',
+                                    border: 'none',
+                                    background: role === r.key ? '#6366f1' : 'transparent',
+                                    color: role === r.key ? 'white' : 'var(--text-secondary)',
+                                    fontSize: '11px',
+                                    fontWeight: '700',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s',
+                                    whiteSpace: 'nowrap',
+                                }}
+                            >
+                                {r.label}
+                            </button>
+                        ))}
+                    </div>
+
                     <form onSubmit={handleSubmit}>
                         <div style={{ marginBottom: '20px' }}>
                             <label className="label">Email Address</label>
                             <input
                                 type="email"
                                 className="input"
-                                placeholder="admin@coaching.com"
+                                placeholder="your@email.com"
                                 value={email}
                                 onChange={e => setEmail(e.target.value)}
                                 required
