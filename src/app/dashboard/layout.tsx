@@ -15,6 +15,7 @@ const navItems = [
     },
     {
         group: 'STUDENTS', items: [
+            { href: '/dashboard/courses', icon: '🏫', label: 'Classes & Batches' },
             { href: '/dashboard/students', icon: '👨‍🎓', label: 'All Students' },
             { href: '/dashboard/students/add', icon: '➕', label: 'Add Student' },
             { href: '/dashboard/attendance', icon: '✅', label: 'Attendance' },
@@ -22,7 +23,6 @@ const navItems = [
     },
     {
         group: 'ACADEMICS', items: [
-            { href: '/dashboard/courses', icon: '🏫', label: 'Classes & Batches' },
             { href: '/dashboard/mock-tests', icon: '📝', label: 'Mock Tests' },
             { href: '/dashboard/exams', icon: '📑', label: 'Exams & Marks' },
             { href: '/dashboard/ai-tools', icon: '🤖', label: 'AI Tools' },
