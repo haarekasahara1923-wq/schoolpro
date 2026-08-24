@@ -11,7 +11,6 @@ function LoginForm() {
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setLoading(true)
@@ -19,7 +18,24 @@ function LoginForm() {
         const result = await login(email, password)
         setLoading(false)
         if (result.success) {
-            router.push('/dashboard')
+            // Get user from local storage since state might not have updated instantly
+            const storedUser = localStorage.getItem('cp_user')
+            if (storedUser) {
+                const user = JSON.parse(storedUser)
+                if (user.role === 'STUDENT') {
+                    router.push('/portal/student')
+                } else if (user.role === 'PARENT') {
+                    router.push('/portal/parent')
+                } else if (user.role === 'TEACHER' || user.role === 'STAFF') {
+                    router.push('/portal/staff')
+                } else if (user.role === 'SUPER_ADMIN') {
+                    router.push('/dashboard/super-admin/tenants')
+                } else {
+                    router.push('/dashboard')
+                }
+            } else {
+                router.push('/dashboard')
+            }
         } else {
             setError(result.error || 'Login failed')
         }

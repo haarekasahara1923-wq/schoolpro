@@ -41,11 +41,15 @@ model Tenant {
   results         Result[]
   expenses        Expense[]
   leads           Lead[]
-  chatMessages    ChatMessage[]
-  subscriptions   Subscription[]
-  auditLogs       AuditLog[]
-  branches        Branch[]
-  notifications   Notification[]
+  chatMessages      ChatMessage[]
+  subscriptions     Subscription[]
+  auditLogs         AuditLog[]
+  branches          Branch[]
+  notifications     Notification[]
+  homeworks         Homework[]
+  homeworkSubmissions HomeworkSubmission[]
+  pushSubscriptions PushSubscription[]
+  parentProfiles    ParentProfile[]
 
   // Affiliate & Earnings
   upiId             String?
@@ -174,6 +178,8 @@ model User {
 
   tenant           Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   auditLogs        AuditLog[]
+  studentProfile   Student?           // If role is STUDENT
+  parentProfile    ParentProfile?     // If role is PARENT
 
   @@unique([tenantId, email])
   @@index([tenantId])
@@ -248,6 +254,7 @@ model Batch {
   students    Student[]
   attendances Attendance[]
   mockTests   MockTest[]
+  homeworks   Homework[]
 
   @@index([tenantId])
 }
@@ -259,6 +266,7 @@ model Student {
   batchId         String
   branchId        String?
   studentId       String?
+  userId          String?   @unique  // Links to User account for login
   fullName        String
   fatherName      String?
   motherName      String?
@@ -283,10 +291,13 @@ model Student {
   course          Course    @relation(fields: [courseId], references: [id])
   batch           Batch     @relation(fields: [batchId], references: [id])
   branch          Branch?   @relation(fields: [branchId], references: [id])
+  userAccount     User?     @relation(fields: [userId], references: [id])
   fees            Fee[]
   attendances     Attendance[]
   results         Result[]
   payments        Payment[]
+  homeworkSubmissions HomeworkSubmission[]
+  parentLinks     ParentProfile[] @relation("ParentChildren")
 
   @@index([tenantId])
   @@index([tenantId, fullName])
@@ -732,4 +743,89 @@ enum WithdrawalStatus {
   APPROVED
   PAID
   REJECTED
+}
+
+// =============================================
+// NEW MODELS: Homework, Push Notifications, Parent Portal
+// =============================================
+
+model Homework {
+  id          String   @id @default(cuid())
+  tenantId    String
+  batchId     String
+  teacherId   String?  // User id of the teacher
+  title       String
+  description String?
+  subject     String?
+  dueDate     DateTime?
+  attachmentUrl String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  batch       Batch    @relation(fields: [batchId], references: [id])
+  submissions HomeworkSubmission[]
+
+  @@index([tenantId])
+  @@index([tenantId, batchId])
+}
+
+model HomeworkSubmission {
+  id          String   @id @default(cuid())
+  tenantId    String
+  homeworkId  String
+  studentId   String
+  content     String?
+  attachmentUrl String?
+  status      SubmissionStatus @default(SUBMITTED)
+  grade       String?
+  feedback    String?
+  submittedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  homework    Homework @relation(fields: [homeworkId], references: [id], onDelete: Cascade)
+  student     Student  @relation(fields: [studentId], references: [id])
+
+  @@unique([homeworkId, studentId])
+  @@index([tenantId])
+}
+
+enum SubmissionStatus {
+  SUBMITTED
+  GRADED
+  LATE
+  MISSING
+}
+
+model PushSubscription {
+  id          String   @id @default(cuid())
+  tenantId    String
+  userId      String
+  endpoint    String
+  p256dh      String
+  auth        String
+  createdAt   DateTime @default(now())
+
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, endpoint])
+  @@index([tenantId])
+  @@index([userId])
+}
+
+model ParentProfile {
+  id        String   @id @default(cuid())
+  tenantId  String
+  userId    String   @unique  // The User with role PARENT
+  name      String
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
+  children  Student[] @relation("ParentChildren")
+
+  @@index([tenantId])
 }
