@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
                     }
                 })
 
-                return { tenant, user, subscription }
+                return { tenant, user, subscription, studentId: null }
             })
         } else {
             // Register under an existing school
