@@ -37,14 +37,23 @@ export default function AttendancePage() {
 
     const batchStudents = students.filter(s => s.batchId === selectedBatch)
 
-    // Initialize all students to PRESENT when batch/date changes
+    // Initialize and load existing attendance
     useEffect(() => {
-        if (batchStudents.length > 0) {
-            const init: Record<string, string> = {}
-            batchStudents.forEach(s => { init[s.id] = 'PRESENT' })
-            setAttendance(init)
+        if (batchStudents.length > 0 && selectedBatch) {
+            fetch(`/api/attendance?batchId=${selectedBatch}&date=${selectedDate}`, { headers: { Authorization: `Bearer ${token}` } })
+            .then(r => r.json())
+            .then(d => {
+                const init: Record<string, string> = {}
+                batchStudents.forEach(s => { init[s.id] = 'PRESENT' }) // default
+                if (d.success && d.data) {
+                    d.data.forEach((a: any) => {
+                        init[a.studentId] = a.status
+                    })
+                }
+                setAttendance(init)
+            })
         }
-    }, [selectedBatch, selectedDate])
+    }, [selectedBatch, selectedDate, token])
 
     const markAll = (status: string) => {
         const all: Record<string, string> = {}

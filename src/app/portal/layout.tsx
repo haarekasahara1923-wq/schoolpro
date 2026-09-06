@@ -74,13 +74,17 @@ function PortalShell({ children }: { children: React.ReactNode }) {
       { href: '/portal/staff', icon: '🏠', label: 'Home' },
       { href: '/portal/staff/attendance', icon: '✅', label: 'Attendance' },
       { href: '/portal/staff/homework', icon: '📚', label: 'Homework' },
+      { href: '/portal/staff/exams', icon: '📝', label: 'Exams' },
       { href: '/portal/staff/notices', icon: '📢', label: 'Notices' },
+      { href: '/portal/staff/profile', icon: '👤', label: 'Profile' },
     ],
     STAFF: [
       { href: '/portal/staff', icon: '🏠', label: 'Home' },
       { href: '/portal/staff/attendance', icon: '✅', label: 'Attendance' },
       { href: '/portal/staff/homework', icon: '📚', label: 'Homework' },
+      { href: '/portal/staff/exams', icon: '📝', label: 'Exams' },
       { href: '/portal/staff/notices', icon: '📢', label: 'Notices' },
+      { href: '/portal/staff/profile', icon: '👤', label: 'Profile' },
     ],
   }
 
