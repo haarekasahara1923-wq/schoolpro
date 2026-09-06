@@ -35,7 +35,7 @@ function LoginForm() {
         setError('')
         
         // Pass optional role filter to verify exact login
-        const result = await login(email, password)
+        const result = await login(email, password, role)
         setLoading(false)
         if (result.success) {
             // Get user from local storage since state might not have updated instantly

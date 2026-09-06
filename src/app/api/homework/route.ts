@@ -12,9 +12,24 @@ export async function GET(req: NextRequest) {
   const where: any = { tenantId: user!.tenantId }
   if (batchId) where.batchId = batchId
 
+  let finalWhere = where
+  if (user!.role === 'STUDENT') {
+    const student = await prisma.student.findUnique({ where: { userId: user!.userId } })
+    if (student) {
+      finalWhere.batchId = student.batchId
+    }
+  }
+
   const homeworks = await prisma.homework.findMany({
-    where,
-    include: { batch: { select: { name: true } }, _count: { select: { submissions: true } } },
+    where: finalWhere,
+    include: { 
+      batch: { select: { name: true } }, 
+      _count: { select: { submissions: true } },
+      submissions: user!.role === 'STUDENT' ? {
+        where: { student: { userId: user!.userId } },
+        select: { id: true, content: true, grade: true, feedback: true, status: true, submittedAt: true }
+      } : false
+    },
     orderBy: { createdAt: 'desc' },
   })
 

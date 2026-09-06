@@ -9,6 +9,7 @@ interface User {
     role: string
     tenantId: string
     phone?: string
+    studentId?: string
 }
 
 interface Tenant {
@@ -33,7 +34,7 @@ interface AuthContextType {
     tenant: Tenant | null
     subscription: Subscription | null
     token: string | null
-    login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>
+    login: (email: string, password: string, role?: string) => Promise<{ success: boolean; error?: string }>
     logout: () => void
     isLoading: boolean
 }
@@ -62,12 +63,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsLoading(false)
     }, [])
 
-    const login = async (email: string, password: string) => {
+    const login = async (email: string, password: string, role?: string) => {
         try {
             const res = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ email, password, role }),
             })
             const data = await res.json()
 

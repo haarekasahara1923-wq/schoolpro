@@ -16,7 +16,10 @@ export async function POST(req: NextRequest) {
         }
 
         const user = await prisma.user.findFirst({
-            where: whereClause
+            where: whereClause,
+            include: {
+                studentProfile: true
+            }
         })
         if (!user) {
             return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
@@ -61,6 +64,7 @@ export async function POST(req: NextRequest) {
                 role: user.role,
                 tenantId: user.tenantId,
                 phone: user.phone,
+                studentId: user.studentProfile?.id || null,
             },
             tenant: tenant ? {
                 id: tenant.id,
