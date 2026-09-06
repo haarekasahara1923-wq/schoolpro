@@ -28,7 +28,13 @@ export async function POST(req: NextRequest) {
   const { error, user } = requireAuth(req)
   if (error) return error
   const body = await req.json()
-  const { homeworkId, studentId, content, attachmentUrl } = body
+  let { homeworkId, studentId, content, attachmentUrl } = body
+  
+  if (!studentId && user?.role === 'STUDENT') {
+      const s = await prisma.student.findFirst({ where: { userId: user.userId } })
+      if (s) studentId = s.id
+  }
+  
   if (!homeworkId || !studentId) return NextResponse.json({ error: 'homeworkId and studentId required' }, { status: 400 })
 
   const submission = await prisma.homeworkSubmission.upsert({

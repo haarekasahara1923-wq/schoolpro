@@ -121,6 +121,7 @@ export async function POST(req: NextRequest) {
                     }
                 })
 
+                let studentId = null;
                 // Create profile details based on role
                 if (userRole === 'STUDENT') {
                     // Try to link to an existing student profile in the same school by email or phone
@@ -139,6 +140,7 @@ export async function POST(req: NextRequest) {
                             where: { id: existingStudent.id },
                             data: { userId: user.id }
                         })
+                        studentId = existingStudent.id
                     } else {
                         // Create a dummy/initial Student profile to link
                         // They'll need to select/assign to Course/Batch later by staff
@@ -151,7 +153,7 @@ export async function POST(req: NextRequest) {
                             dummyBatch = await tx.batch.create({ data: { tenantId, courseId: dummyCourse.id, name: 'Default Batch' } })
                         }
                         
-                        await tx.student.create({
+                        const newStudent = await tx.student.create({
                             data: {
                                 tenantId,
                                 userId: user.id,
@@ -162,6 +164,7 @@ export async function POST(req: NextRequest) {
                                 status: 'ACTIVE',
                             }
                         })
+                        studentId = newStudent.id
                     }
                 } else if (userRole === 'PARENT') {
                     await tx.parentProfile.create({
@@ -192,7 +195,7 @@ export async function POST(req: NextRequest) {
                     })
                 }
 
-                return { tenant: school, user, subscription: null }
+                return { tenant: school, user, subscription: null, studentId }
             })
         }
 
@@ -205,7 +208,7 @@ export async function POST(req: NextRequest) {
             message: 'Registration successful',
             accessToken,
             refreshToken,
-            user: { id: result.user.id, name, email, role: userRole, tenantId: result.tenant.id },
+            user: { id: result.user.id, name, email, role: userRole, tenantId: result.tenant.id, studentId: result.studentId || null },
             tenant: { id: result.tenant.id, name: result.tenant.name, themeColor: result.tenant.themeColor },
         }, { status: 201 })
     } catch (error) {
