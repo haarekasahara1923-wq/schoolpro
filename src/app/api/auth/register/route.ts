@@ -142,8 +142,14 @@ export async function POST(req: NextRequest) {
                     } else {
                         // Create a dummy/initial Student profile to link
                         // They'll need to select/assign to Course/Batch later by staff
-                        const dummyCourse = await tx.course.findFirst({ where: { tenantId } })
-                        const dummyBatch = await tx.batch.findFirst({ where: { tenantId } })
+                        let dummyCourse = await tx.course.findFirst({ where: { tenantId } })
+                        if (!dummyCourse) {
+                            dummyCourse = await tx.course.create({ data: { tenantId, name: 'Default Course' } })
+                        }
+                        let dummyBatch = await tx.batch.findFirst({ where: { tenantId } })
+                        if (!dummyBatch) {
+                            dummyBatch = await tx.batch.create({ data: { tenantId, courseId: dummyCourse.id, name: 'Default Batch' } })
+                        }
                         
                         await tx.student.create({
                             data: {
@@ -151,8 +157,8 @@ export async function POST(req: NextRequest) {
                                 userId: user.id,
                                 fullName: name,
                                 phone: phone || '',
-                                courseId: dummyCourse?.id || 'default_course',
-                                batchId: dummyBatch?.id || 'default_batch',
+                                courseId: dummyCourse.id,
+                                batchId: dummyBatch.id,
                                 status: 'ACTIVE',
                             }
                         })
