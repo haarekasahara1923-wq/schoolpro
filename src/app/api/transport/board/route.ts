@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   if (user!.role !== 'DRIVER') return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
 
   try {
-    const profile = await prisma.driverProfile.findUnique({ where: { userId: user!.id } })
+    const profile = await prisma.driverProfile.findUnique({ where: { userId: user!.userId } })
     if (!profile || !profile.vehicleId) {
       return NextResponse.json({ success: true, data: [] }) // No vehicle assigned
     }
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
         tenantId: user!.tenantId,
         studentId,
         vehicleId,
-        driverId: user!.id,
+        driverId: user!.userId,
         status
       }
     })
