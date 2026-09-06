@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useAuth } from '@/contexts/AuthContext'
 import { useState, useEffect } from 'react'
 
@@ -140,7 +140,7 @@ export default function StaffHomework() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: '15px', fontWeight: '700', color: 'white' }}>{hw.title}</div>
-                  <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>{hw.subject && `${hw.subject} � `}{hw.batch?.name}</div>
+                  <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>{hw.subject && `${hw.subject} • `}{hw.batch?.name}</div>
                   {hw.dueDate && <div style={{ fontSize: '12px', color: '#f59e0b', marginTop: '4px' }}>Due: {new Date(hw.dueDate).toLocaleDateString('en-IN')}</div>}
                   <button onClick={() => viewSubmissions(hw)} style={{ background: 'none', border: 'none', padding: 0, fontSize: '13px', color: '#818cf8', marginTop: '8px', cursor: 'pointer', textDecoration: 'underline' }}>View Submissions ({hw._count?.submissions || 0})</button>
                 </div>
@@ -180,3 +180,4 @@ export default function StaffHomework() {
     </div>
   )
 }
+

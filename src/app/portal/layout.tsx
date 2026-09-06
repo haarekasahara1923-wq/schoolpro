@@ -70,6 +70,9 @@ function PortalShell({ children }: { children: React.ReactNode }) {
       { href: '/portal/parent/children', icon: '👶', label: 'Children' },
       { href: '/portal/parent/notices', icon: '📢', label: 'Notices' },
     ],
+    DRIVER: [
+      { href: '/portal/driver', icon: '🚌', label: 'Dashboard' }
+    ],
     TEACHER: [
       { href: '/portal/staff', icon: '🏠', label: 'Home' },
       { href: '/portal/staff/attendance', icon: '✅', label: 'Attendance' },
@@ -98,7 +101,7 @@ function PortalShell({ children }: { children: React.ReactNode }) {
           <span style={{ fontSize: '22px' }}>🏫</span>
           <div>
             <div style={{ fontSize: '15px', fontWeight: '700', color: 'white' }}>SchoolPro</div>
-            <div style={{ fontSize: '11px', color: '#94a3b8' }}>{role === 'STUDENT' ? 'Student Portal' : role === 'PARENT' ? 'Parent Portal' : 'Staff Portal'}</div>
+            <div style={{ fontSize: '11px', color: '#94a3b8' }}>{role === 'STUDENT' ? 'Student Portal' : role === 'PARENT' ? 'Parent Portal' : role === 'DRIVER' ? 'Driver Portal' : 'Staff Portal'}</div>
           </div>
         </div>
         <button onClick={logout} style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', borderRadius: '8px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer' }}>Logout</button>

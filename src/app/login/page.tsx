@@ -19,6 +19,8 @@ function LoginForm() {
                 router.push('/portal/student')
             } else if (user.role === 'PARENT') {
                 router.push('/portal/parent')
+            } else if (user.role === 'DRIVER') {
+                router.push('/portal/driver')
             } else if (user.role === 'TEACHER' || user.role === 'STAFF') {
                 router.push('/portal/staff')
             } else if (user.role === 'SUPER_ADMIN') {
@@ -38,7 +40,6 @@ function LoginForm() {
         const result = await login(email, password, role)
         setLoading(false)
         if (result.success) {
-            // Get user from local storage since state might not have updated instantly
             const storedUser = localStorage.getItem('cp_user')
             if (storedUser) {
                 const user = JSON.parse(storedUser)
@@ -46,6 +47,8 @@ function LoginForm() {
                     router.push('/portal/student')
                 } else if (user.role === 'PARENT') {
                     router.push('/portal/parent')
+                } else if (user.role === 'DRIVER') {
+                    router.push('/portal/driver')
                 } else if (user.role === 'TEACHER' || user.role === 'STAFF') {
                     router.push('/portal/staff')
                 } else if (user.role === 'SUPER_ADMIN') {
@@ -66,6 +69,7 @@ function LoginForm() {
         { key: 'TEACHER', label: 'Staff / Teacher' },
         { key: 'STUDENT', label: 'Student' },
         { key: 'PARENT', label: 'Parent' },
+        { key: 'DRIVER', label: 'Driver' },
     ]
 
     return (

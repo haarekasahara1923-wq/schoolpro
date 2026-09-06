@@ -40,6 +40,7 @@ const navItems = [
         group: 'MANAGEMENT', items: [
             { href: '/dashboard/teachers', icon: '👩‍🏫', label: 'Teachers' },
             { href: '/dashboard/leads', icon: '📈', label: 'Lead Management' },
+            { href: '/dashboard/transport', icon: '🚌', label: 'Transport' },
             { href: '/dashboard/whatsapp', icon: '💬', label: 'WhatsApp' },
         ]
     },

@@ -10,7 +10,13 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Email and password are required' }, { status: 400 })
         }
 
-        const whereClause: any = { email: email.toLowerCase(), isActive: true }
+        const whereClause: any = { isActive: true }
+        // Let user log in with email or phone
+        whereClause.OR = [
+            { email: email.toLowerCase() },
+            { phone: email } // 'email' field holds the input
+        ]
+
         if (role) {
             whereClause.role = role
         }
