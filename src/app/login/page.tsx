@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -7,9 +7,11 @@ import { AuthProvider, useAuth } from '@/contexts/AuthContext'
 function LoginForm() {
     const { user, login } = useAuth()
     const router = useRouter()
-    const [role, setRole] = useState('COACHING_ADMIN') // COACHING_ADMIN, TEACHER, STUDENT, PARENT
+    const [role, setRole] = useState('COACHING_ADMIN') // COACHING_ADMIN, TEACHER, STUDENT, PARENT, DRIVER
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [tenantId, setTenantId] = useState('')
+    const [schools, setSchools] = useState<{ id: string; name: string }[]>([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
 
@@ -31,13 +33,29 @@ function LoginForm() {
         }
     }, [user, router])
 
+    useEffect(() => {
+        // Fetch schools list for dropdown
+        fetch('/api/auth/schools')
+            .then(r => r.json())
+            .then(d => {
+                if (d.success) setSchools(d.schools || [])
+            })
+            .catch(err => console.error('Failed to load schools:', err))
+    }, [])
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setLoading(true)
         setError('')
         
+        if (role !== 'COACHING_ADMIN' && role !== 'SUPER_ADMIN' && !tenantId) {
+            setError('Please select your school')
+            setLoading(false)
+            return
+        }
+        
         // Pass optional role filter to verify exact login
-        const result = await login(email, password, role)
+        const result = await login(email, password, role, tenantId)
         setLoading(false)
         if (result.success) {
             const storedUser = localStorage.getItem('cp_user')
@@ -77,7 +95,7 @@ function LoginForm() {
             {/* Background */}
             <div style={{ position: 'fixed', inset: 0, background: 'radial-gradient(ellipse at center, rgba(99,102,241,0.1) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
-            <div style={{ width: '100%', maxWidth: '420px' }}>
+            <div style={{ width: '100%', maxWidth: '420px', position: 'relative' }}>
                 {/* Logo */}
                 <div style={{ textAlign: 'center', marginBottom: '32px' }}>
                     <div style={{ width: '56px', height: '56px', background: 'linear-gradient(135deg, #6366f1, #ec4899)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', margin: '0 auto 16px' }}>🏫</div>
@@ -114,12 +132,22 @@ function LoginForm() {
                     </div>
 
                     <form onSubmit={handleSubmit}>
+                        {role !== 'COACHING_ADMIN' && role !== 'SUPER_ADMIN' && (
+                            <div style={{ marginBottom: '16px' }}>
+                                <label className="label">Select School</label>
+                                <select className="input" value={tenantId} onChange={e => setTenantId(e.target.value)} required>
+                                    <option value="">-- Choose Your School --</option>
+                                    {schools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                                </select>
+                            </div>
+                        )}
+
                         <div style={{ marginBottom: '20px' }}>
-                            <label className="label">Email Address</label>
+                            <label className="label">Email or Phone</label>
                             <input
-                                type="email"
+                                type="text"
                                 className="input"
-                                placeholder="your@email.com"
+                                placeholder="your@email.com or 9876543210"
                                 value={email}
                                 onChange={e => setEmail(e.target.value)}
                                 required

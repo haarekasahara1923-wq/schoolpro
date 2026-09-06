@@ -99,7 +99,9 @@ export default function RegisterPage() {
                     router.push('/portal/student')
                 } else if (role === 'PARENT') {
                     router.push('/portal/parent')
-                } else if (role === 'TEACHER') {
+                } else if (role === 'DRIVER') {
+                    router.push('/portal/driver')
+                } else if (role === 'TEACHER' || role === 'STAFF') {
                     router.push('/portal/staff')
                 } else {
                     router.push('/dashboard')
@@ -129,6 +131,7 @@ export default function RegisterPage() {
         { key: 'TEACHER', label: 'Staff / Teacher' },
         { key: 'STUDENT', label: 'Student' },
         { key: 'PARENT', label: 'Parent' },
+        { key: 'DRIVER', label: 'Driver' },
     ]
 
     return (

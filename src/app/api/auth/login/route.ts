@@ -4,7 +4,7 @@ import { signAccessToken, signRefreshToken, comparePassword } from '@/lib/auth'
 
 export async function POST(req: NextRequest) {
     try {
-        const { email, password, role } = await req.json()
+        const { email, password, role, tenantId } = await req.json()
 
         if (!email || !password) {
             return NextResponse.json({ error: 'Email and password are required' }, { status: 400 })
@@ -19,6 +19,10 @@ export async function POST(req: NextRequest) {
 
         if (role) {
             whereClause.role = role
+        }
+
+        if (tenantId) {
+            whereClause.tenantId = tenantId
         }
 
         const user = await prisma.user.findFirst({

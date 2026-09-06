@@ -175,6 +175,15 @@ export async function POST(req: NextRequest) {
                             phone: phone || '',
                         }
                     })
+                } else if (userRole === 'DRIVER') {
+                    await tx.driverProfile.create({
+                        data: {
+                            tenantId,
+                            userId: user.id,
+                            phone: phone || '',
+                            isActive: true
+                        }
+                    })
                 }
 
                 return { tenant: school, user, subscription: null }

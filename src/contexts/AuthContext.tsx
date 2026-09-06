@@ -34,7 +34,7 @@ interface AuthContextType {
     tenant: Tenant | null
     subscription: Subscription | null
     token: string | null
-    login: (email: string, password: string, role?: string) => Promise<{ success: boolean; error?: string }>
+    login: (email: string, password: string, role?: string, tenantId?: string) => Promise<{ success: boolean; error?: string }>
     logout: () => void
     isLoading: boolean
 }
@@ -63,12 +63,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsLoading(false)
     }, [])
 
-    const login = async (email: string, password: string, role?: string) => {
+    const login = async (email: string, password: string, role?: string, tenantId?: string) => {
         try {
             const res = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password, role }),
+                body: JSON.stringify({ email, password, role, tenantId }),
             })
             const data = await res.json()
 
