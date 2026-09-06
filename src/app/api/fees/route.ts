@@ -71,7 +71,7 @@ export async function PATCH(req: NextRequest) {
 
     try {
         const body = await req.json()
-        const { id, amount } = body
+        const { id, amount, mode } = body
 
         if (!id) return NextResponse.json({ error: 'Fee ID is required' }, { status: 400 })
 
@@ -83,6 +83,7 @@ export async function PATCH(req: NextRequest) {
 
             const newAmount = parseFloat(amount) || 0
             const diff = newAmount - oldFee.amount
+            const paymentMode = mode || 'CASH'
 
             // Update Fee Record
             const updatedFee = await tx.fee.update({
@@ -105,7 +106,7 @@ export async function PATCH(req: NextRequest) {
                 } else {
                     await tx.payment.update({
                         where: { id: existingPayment.id },
-                        data: { amount: newAmount }
+                        data: { amount: newAmount, mode: paymentMode as any }
                     })
                 }
             } else if (newAmount > 0) {
@@ -115,7 +116,7 @@ export async function PATCH(req: NextRequest) {
                         studentId: oldFee.studentId,
                         feeId: id,
                         amount: newAmount,
-                        mode: 'CASH',
+                        mode: paymentMode as any,
                         notes: `Slot Payment: ${oldFee.notes || 'Custom Slot'}`
                     }
                 })

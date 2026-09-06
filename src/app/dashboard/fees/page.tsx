@@ -252,6 +252,22 @@ export default function FeesPage() {
                                         </div>
                                     </div>
 
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4px', marginBottom: '-4px' }}>
+                                        <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-secondary)' }}>Payment Mode</div>
+                                        <select 
+                                            className="input" 
+                                            style={{ width: 'auto', padding: '6px 12px', fontSize: '13px', borderRadius: '8px' }}
+                                            value={paymentMode} 
+                                            onChange={e => setPaymentMode(e.target.value)}
+                                        >
+                                            <option value="CASH">💵 Cash</option>
+                                            <option value="UPI">📱 UPI</option>
+                                            <option value="BANK_TRANSFER">🏦 Bank Transfer</option>
+                                            <option value="CHEQUE">💳 Cheque</option>
+                                            <option value="CARD">💳 Card</option>
+                                        </select>
+                                    </div>
+
                                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
                                         {[0, 1, 2, 3, 4, 5].map(idx => {
                                             const fee = studentFees[idx]
@@ -280,7 +296,7 @@ export default function FeesPage() {
                                                                     const res = await fetch('/api/fees', {
                                                                         method: 'PATCH',
                                                                         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                                                                        body: JSON.stringify({ id: fee.id, amount: val })
+                                                                        body: JSON.stringify({ id: fee.id, amount: val, mode: paymentMode })
                                                                     })
                                                                     const data = await res.json()
                                                                     if (data.success) {

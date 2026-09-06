@@ -15,6 +15,7 @@ export async function GET(req: NextRequest) {
           batch: { select: { name: true } },
           attendances: { orderBy: { date: 'desc' }, take: 10 },
           fees: { orderBy: { dueDate: 'desc' }, take: 5 },
+          examResults: { include: { exam: true }, orderBy: { createdAt: 'desc' }, take: 5 },
         },
       },
     },

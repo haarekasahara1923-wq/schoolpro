@@ -106,7 +106,7 @@ export default function TeachersPage() {
 
                         <div style={{ display: 'flex', gap: '8px' }}>
                             <a href={`https://wa.me/91${t.phone.replace(/\D/g, '')}`} target="_blank" style={{ flex: 1, padding: '8px', background: '#25d36615', border: '1px solid #25d36630', borderRadius: '8px', color: '#25d366', fontSize: '13px', textDecoration: 'none', textAlign: 'center', fontWeight: '600' }}>💬 WhatsApp</a>
-                            <button className="btn btn-secondary btn-sm" style={{ flex: 1, justifyContent: 'center' }}>📊 Performance</button>
+                            <button onClick={() => alert("Teacher Performance Analytics module is currently under development.")} className="btn btn-secondary btn-sm" style={{ flex: 1, justifyContent: 'center' }}>📊 Performance</button>
                         </div>
                     </div>
                 ))}

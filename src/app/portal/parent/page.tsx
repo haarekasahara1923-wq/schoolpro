@@ -55,7 +55,8 @@ export default function ParentHome() {
           {children.map((child: any) => {
             const todayAttendances = child.attendances?.filter((a: any) => new Date(a.date).toDateString() === new Date().toDateString())
             const presentToday = todayAttendances?.find((a: any) => a.status === 'PRESENT')
-            const pendingFees = child.fees?.filter((f: any) => f.status === 'PENDING' || f.status === 'OVERDUE').length
+            const pendingFeeAmount = Math.max(0, child.totalFee - child.paidFee)
+            
             return (
               <div key={child.id} style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '14px', padding: '16px', marginBottom: '10px' }}>
                 <div style={{ fontSize: '15px', fontWeight: '700', color: 'white' }}>{child.fullName}</div>
@@ -66,10 +67,33 @@ export default function ParentHome() {
                     <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>Today's Att.</div>
                   </div>
                   <div style={{ flex: 1, background: '#0f172a', borderRadius: '10px', padding: '10px', textAlign: 'center' }}>
-                    <div style={{ fontSize: '18px', fontWeight: '800', color: pendingFees > 0 ? '#f59e0b' : '#10b981' }}>{pendingFees}</div>
+                    <div style={{ fontSize: '18px', fontWeight: '800', color: pendingFeeAmount > 0 ? '#f59e0b' : '#10b981' }}>
+                        ₹{pendingFeeAmount.toLocaleString('en-IN')}
+                    </div>
                     <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>Pending Fees</div>
                   </div>
                 </div>
+
+                {child.examResults && child.examResults.length > 0 && (
+                    <div style={{ marginTop: '16px', borderTop: '1px solid #334155', paddingTop: '12px' }}>
+                        <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '8px', fontWeight: 600 }}>Recent Exam Marks</div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            {child.examResults.map((er: any) => (
+                                <div key={er.id} style={{ display: 'flex', justifyContent: 'space-between', background: '#0f172a', padding: '8px 12px', borderRadius: '8px' }}>
+                                    <div>
+                                        <div style={{ fontSize: '13px', color: 'white', fontWeight: 600 }}>{er.exam?.title}</div>
+                                        <div style={{ fontSize: '11px', color: '#64748b' }}>{er.exam?.subject} • {new Date(er.exam?.date).toLocaleDateString('en-IN')}</div>
+                                    </div>
+                                    <div style={{ textAlign: 'right' }}>
+                                        <div style={{ fontSize: '14px', fontWeight: 800, color: er.marksObtained >= (er.exam?.maxMarks * 0.4) ? '#10b981' : '#ef4444' }}>
+                                            {er.marksObtained} <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 400 }}>/ {er.exam?.maxMarks}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
               </div>
             )
           })}
