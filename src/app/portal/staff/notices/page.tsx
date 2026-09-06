@@ -20,7 +20,7 @@ export default function StaffNotices() {
   const [sending, setSending] = useState(false)
   const [msg, setMsg] = useState('')
   
-  const h = { Authorization: \Bearer \\ }
+  const h = { Authorization: `Bearer ${token}` }
 
   const loadNotices = () => {
     if (!token) return
@@ -38,7 +38,7 @@ export default function StaffNotices() {
       setStudents([])
       return
     }
-    fetch(\/api/students?batchId=\\, { headers: h })
+    fetch(`/api/students?batchId=${selectedBatch}`, { headers: h })
       .then(r => r.json())
       .then(d => setStudents(d.data || []))
   }, [selectedBatch])
@@ -85,7 +85,7 @@ export default function StaffNotices() {
         </button>
       </div>
 
-      {msg && <div style={{ background: msg.startsWith('?') ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)', border: \1px solid \\, borderRadius: '10px', padding: '12px', fontSize: '13px', color: msg.startsWith('?') ? '#10b981' : '#ef4444' }}>{msg}</div>}
+      {msg && <div style={{ background: msg.startsWith('?') ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)', border: `1px solid ${msg.startsWith('?') ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}`, borderRadius: '10px', padding: '12px', fontSize: '13px', color: msg.startsWith('?') ? '#10b981' : '#ef4444' }}>{msg}</div>}
 
       {showForm && (
         <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '16px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>

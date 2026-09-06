@@ -20,11 +20,11 @@ export default function StaffHomework() {
   const [gradingFeedback, setGradingFeedback] = useState<Record<string, { grade: string, feedback: string }>>({})
 
   const [msg, setMsg] = useState('')
-  const h = { Authorization: \Bearer \\ }
+  const h = { Authorization: `Bearer ${token}` }
 
   const load = () => {
     if (!token || !selectedBatch) return
-    fetch(\/api/homework?batchId=\\, { headers: h }).then(r => r.json()).then(d => setHomeworks(d.homeworks || []))
+    fetch(`/api/homework?batchId=${selectedBatch}`, { headers: h }).then(r => r.json()).then(d => setHomeworks(d.homeworks || []))
   }
 
   useEffect(() => {
@@ -53,13 +53,13 @@ export default function StaffHomework() {
 
   const deleteHW = async (id: string) => {
     if (!confirm('Delete this homework?')) return
-    await fetch(\/api/homework?id=\\, { method: 'DELETE', headers: h })
+    await fetch(`/api/homework?id=${id}`, { method: 'DELETE', headers: h })
     load()
   }
   
   const viewSubmissions = async (hw: any) => {
     setViewingSubmissions(hw)
-    const res = await fetch(\/api/homework/submit?homeworkId=\\, { headers: h })
+    const res = await fetch(`/api/homework/submit?homeworkId=${hw.id}`, { headers: h })
     const d = await res.json()
     setSubmissions(d.submissions || [])
     
@@ -113,7 +113,7 @@ export default function StaffHomework() {
         </div>
       )}
 
-      {msg && <div style={{ background: msg.startsWith('?') ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)', border: \1px solid \\, borderRadius: '10px', padding: '12px', fontSize: '13px', color: msg.startsWith('?') ? '#10b981' : '#ef4444' }}>{msg}</div>}
+      {msg && <div style={{ background: msg.startsWith('?') ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)', border: `1px solid ${msg.startsWith('?') ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}`, borderRadius: '10px', padding: '12px', fontSize: '13px', color: msg.startsWith('?') ? '#10b981' : '#ef4444' }}>{msg}</div>}
 
       {showForm && !viewingSubmissions && selectedBatch && (
         <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '16px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -140,7 +140,7 @@ export default function StaffHomework() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: '15px', fontWeight: '700', color: 'white' }}>{hw.title}</div>
-                  <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>{hw.subject && \\ • \}{hw.batch?.name}</div>
+                  <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>{hw.subject && `${hw.subject} • `}{hw.batch?.name}</div>
                   {hw.dueDate && <div style={{ fontSize: '12px', color: '#f59e0b', marginTop: '4px' }}>Due: {new Date(hw.dueDate).toLocaleDateString('en-IN')}</div>}
                   <button onClick={() => viewSubmissions(hw)} style={{ background: 'none', border: 'none', padding: 0, fontSize: '13px', color: '#818cf8', marginTop: '8px', cursor: 'pointer', textDecoration: 'underline' }}>View Submissions ({hw._count?.submissions || 0})</button>
                 </div>

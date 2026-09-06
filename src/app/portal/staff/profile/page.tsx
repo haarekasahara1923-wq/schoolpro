@@ -9,7 +9,7 @@ export default function StaffProfile() {
   useEffect(() => {
     if (!token || !user) return
     // Match teacher profile by email
-    fetch('/api/teachers', { headers: { Authorization: \Bearer \\ } })
+    fetch('/api/teachers', { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.json())
       .then(d => {
         if (d.success && d.data) {

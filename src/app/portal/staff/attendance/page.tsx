@@ -15,7 +15,7 @@ export default function StaffAttendance() {
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState('')
-  const h = { Authorization: \Bearer \\ }
+  const h = { Authorization: `Bearer ${token}` }
 
   useEffect(() => {
     if (!token) return
@@ -29,7 +29,7 @@ export default function StaffAttendance() {
         return
     }
     setLoading(true)
-    fetch(\/api/students?batch=\\, { headers: h })
+    fetch(`/api/students?batchId=${selectedBatch}`, { headers: h })
       .then(r => r.json())
       .then(d => {
         const stu = d.data || []
@@ -90,7 +90,7 @@ export default function StaffAttendance() {
         </div>
       </div>
 
-      {msg && <div style={{ background: msg.startsWith('?') ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)', border: \1px solid \\, borderRadius: '10px', padding: '12px', fontSize: '13px', color: msg.startsWith('?') ? '#10b981' : '#ef4444' }}>{msg}</div>}
+      {msg && <div style={{ background: msg.startsWith('?') ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)', border: `1px solid ${msg.startsWith('?') ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}`, borderRadius: '10px', padding: '12px', fontSize: '13px', color: msg.startsWith('?') ? '#10b981' : '#ef4444' }}>{msg}</div>}
 
       {loading && <div style={{ color: '#64748b', textAlign: 'center', padding: '20px' }}>Loading students...</div>}
 
@@ -116,7 +116,7 @@ export default function StaffAttendance() {
               <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                 {statusOptions.map(st => (
                   <button key={st} onClick={() => setAttendance(prev => ({ ...prev, [s.id]: st }))}
-                    style={{ padding: '5px 8px', borderRadius: '6px', border: \1px solid \\, background: attendance[s.id] === st ? \\20\ : 'transparent', color: attendance[s.id] === st ? statusColors[st] : '#64748b', fontSize: '11px', fontWeight: '600', cursor: 'pointer' }}>
+                    style={{ padding: '5px 8px', borderRadius: '6px', border: `1px solid ${attendance[s.id] === st ? statusColors[st] : '#334155'}`, background: attendance[s.id] === st ? `${statusColors[st]}20` : 'transparent', color: attendance[s.id] === st ? statusColors[st] : '#64748b', fontSize: '11px', fontWeight: '600', cursor: 'pointer' }}>
                     {st[0] + st.slice(1).toLowerCase()}
                   </button>
                 ))}

@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
       const notice = await prisma.notification.create({
         data: {
           tenantId: user!.tenantId,
-          title: \To \'s Parent: \\,
+          title: `To ${student.fullName}'s Parent: ${title}`,
           message,
           type: 'NOTICE',
           targetRole: 'PARENT',
